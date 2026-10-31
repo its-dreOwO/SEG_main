@@ -14,6 +14,9 @@ import { REVIEW_PHRASES, QUERY_TARGETS, FLAG_REASONS, SAMPLE_ADDRESSES, SAMPLE_P
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
+// Obscure queries with no product match, added to the zero-result pool next to the empty QUERY_TARGETS entries.
+const EXTRA_NO_MATCH_QUERIES = ['nokia 3310', 'vr headset'];
+
 // Demo data is generated from a fixed seed and a fixed clock so every run produces the same rows.
 const DEMO_RNG_SEED = 20261031;
 const DEMO_END = Date.UTC(2026, 9, 31, 12, 0, 0);
@@ -204,14 +207,23 @@ export async function seedContent() {
     }
   }
 
-  // Search log: 250 queries over 30 days. Some have no matching product, so clicked_doc_id stays null.
+  // Search log: 250 queries over 30 days. About 10% are zero-result queries (result_count 0, no click);
+  // the rest have a positive result_count, and some of those are clicked.
+  const hitQueries = QUERY_TARGETS.filter(([, targets]) => targets.length > 0);
+  const missQueries = [
+    ...QUERY_TARGETS.filter(([, targets]) => targets.length === 0).map(([text]) => text),
+    ...EXTRA_NO_MATCH_QUERIES,
+  ];
   for (let i = 0; i < 250; i++) {
-    const [text, targets] = pick(rng, QUERY_TARGETS);
+    const miss = rng() < 0.1;
+    const [text, targets] = miss ? [pick(rng, missQueries), []] : pick(rng, hitQueries);
     const clicked = targets.length && rng() < 0.75 ? docId.get(pick(rng, targets)) : null;
+    const resultCount = miss ? 0 : 1 + Math.floor(rng() * 40);
     const userId = rng() < 0.4 ? null : pick(rng, customers).id;
     await query(
-      'INSERT INTO search_click_log (user_id, query_string, clicked_doc_id, "timestamp") VALUES ($1, $2, $3, $4)',
-      [userId, text, clicked, recentTs(rng)],
+      `INSERT INTO search_click_log (user_id, query_string, clicked_doc_id, result_count, "timestamp")
+       VALUES ($1, $2, $3, $4, $5)`,
+      [userId, text, clicked, resultCount, recentTs(rng)],
     );
   }
 

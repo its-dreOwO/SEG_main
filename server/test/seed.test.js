@@ -8,6 +8,7 @@ import { resetDb } from './helpers.js';
 import { products } from '../../db/data/products.js';
 import { articles } from '../../db/data/articles.js';
 import { roles, users, categories } from '../../db/data/users.js';
+import { seedContent } from '../../db/seed.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const webRoot = path.join(root, 'web', 'public');
@@ -15,7 +16,10 @@ const CATEGORY_SLUGS = categories.map(([slug]) => slug).sort();
 const STAFF_NAMES = new Set(users.filter((u) => u.role !== 'customer').map((u) => u.name));
 const VI_DIACRITICS = /[ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹđ]/i;
 
-before(resetDb);
+before(async () => {
+  await resetDb();
+  await seedContent();
+});
 after(() => pool.end());
 
 test('at least 100 products across the 8 category slugs', () => {

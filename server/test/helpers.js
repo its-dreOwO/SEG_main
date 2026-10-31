@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../src/app.js';
 import { query } from '../src/db.js';
-import { seedAll } from '../../db/seed.js';
+import { applySchema, seedBase } from '../../db/seed.js';
 
 // Fixed password for the throwaway test database only.
 export const TEST_PASSWORD = 'test-password-1';
@@ -37,7 +37,10 @@ export async function resetDb() {
   const dbName = assertTestDatabaseUrl(process.env.TEST_DATABASE_URL);
   const { rows } = await query('SELECT current_database() AS db');
   if (rows[0].db !== dbName) throw new Error('resetDb refused: connected database is not the test database');
-  await seedAll(TEST_PASSWORD, { reset: true });
+  // Base data only (roles, permissions, users, categories, settings). The full catalogue is
+  // loaded by tests that need it, via seedContent() from db/seed.js.
+  await applySchema();
+  await seedBase(TEST_PASSWORD);
 }
 
 // Returns a supertest agent holding the login cookie (needs POST /api/auth/login, added with auth).
