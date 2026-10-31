@@ -1,3 +1,4 @@
+import { adminEn, adminVi } from './admin/strings.js';
 // Every UI string, in English and Vietnamese. Keys must match exactly (checked by a test).
 export const en = {
   'common.skip': 'Skip to content',
@@ -504,3 +505,6 @@ export const vi = {
   'admin.title': 'Khu vực quản trị',
   'admin.text': 'Công cụ quản trị sẽ sớm ra mắt.',
 };
+
+Object.assign(en, adminEn);
+Object.assign(vi, adminVi);
