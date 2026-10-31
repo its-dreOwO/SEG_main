@@ -30,7 +30,7 @@ tar -C server --exclude=node_modules --exclude=test -cf - . | "${SSH[@]}" \
 "${SSH[@]}" "cd /opt/shop-api && npm ci --omit=dev --no-audit --no-fund"
 
 # --- db (schema + seed scripts; not run here). db/seed.js imports ../server/src, so link server -> . on the VPS.
-# Seed later with: cd /opt/shop-api && set -a && . /etc/shop-api.env && set +a && SEED_PASSWORD=... node db/seed.js
+# Seed later with: cd /opt/shop-api && set -a && . /etc/shop-api.env && set +a && SEED_PASSWORD=... node db/seed.js --reset   (--reset DROPS ALL TABLES; never run on a live database)
 tar -cf - db | "${SSH[@]}" "tar -C /opt/shop-api -xf - && ln -sfn . /opt/shop-api/server"
 
 # --- service ---

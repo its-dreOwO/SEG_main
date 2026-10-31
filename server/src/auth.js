@@ -47,18 +47,28 @@ export async function loadUser(id) {
   return rows[0] || null;
 }
 
-// Reloads the user and permissions on every request, so deactivation and permission edits apply at once.
-export const requireAuth = wrap(async (req, res, next) => {
-  const token = req.cookies?.[COOKIE_NAME];
+async function userFromCookie(req) {
   let userId;
   try {
-    userId = Number(jwt.verify(token, SECRET, { algorithms: ['HS256'] }).sub);
+    userId = Number(jwt.verify(req.cookies?.[COOKIE_NAME], SECRET, { algorithms: ['HS256'] }).sub);
   } catch {
-    return res.status(401).json({ error: 'Authentication required' });
+    return null;
   }
   const user = Number.isInteger(userId) ? await loadUser(userId) : null;
-  if (!user || !user.active) return res.status(401).json({ error: 'Authentication required' });
-  req.user = { id: user.id, role: user.role, permissions: user.permissions };
+  return user && user.active ? { id: user.id, role: user.role, permissions: user.permissions } : null;
+}
+
+// Reloads the user and permissions on every request, so deactivation and permission edits apply at once.
+export const requireAuth = wrap(async (req, res, next) => {
+  const user = await userFromCookie(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  req.user = user;
+  next();
+});
+
+// Read routes: sets req.user when a valid session exists, otherwise carries on as a guest.
+export const optionalAuth = wrap(async (req, _res, next) => {
+  req.user = (await userFromCookie(req)) || undefined;
   next();
 });
 

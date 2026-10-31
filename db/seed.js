@@ -1,5 +1,6 @@
-// Repeatable: applies db/schema.sql (drops and recreates tables), then seeds base data.
-// Usage from repo root: SEED_PASSWORD=... node db/seed.js   (DATABASE_URL, or TEST_DATABASE_URL with NODE_ENV=test)
+// DESTRUCTIVE: applies db/schema.sql (drops and recreates every table), then seeds base data.
+// Usage from repo root: SEED_PASSWORD=... node db/seed.js --reset   (DATABASE_URL, or TEST_DATABASE_URL with NODE_ENV=test)
+// Without --reset it refuses to run.
 // products.js / articles.js in db/data are loaded by a later task when present.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,14 +48,17 @@ export async function seedBase(password) {
   }
 }
 
-export async function seedAll(password) {
+// Validates everything first; only then drops tables. Destructive, so it needs { reset: true }.
+export async function seedAll(password, { reset = false } = {}) {
+  if (!password) throw new Error('SEED_PASSWORD is required');
+  if (!reset) throw new Error('Refusing to drop and recreate tables without --reset');
   await applySchema();
   await seedBase(password);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    await seedAll(process.env.SEED_PASSWORD);
+    await seedAll(process.env.SEED_PASSWORD, { reset: process.argv.includes('--reset') });
     console.log('seeded');
   } catch (e) {
     console.error(e.message);

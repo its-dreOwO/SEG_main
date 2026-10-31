@@ -14,21 +14,30 @@ export const ROLE_EMAILS = {
   customer: 'linh@shop.test',
 };
 
-function assertTestDatabase() {
-  const url = process.env.TEST_DATABASE_URL;
-  if (process.env.NODE_ENV !== 'test' || !url) {
+// Exact match: database name must be shop_test and host 127.0.0.1 or localhost (no substring tricks).
+export function assertTestDatabaseUrl(url, nodeEnv = process.env.NODE_ENV) {
+  if (nodeEnv !== 'test' || !url) {
     throw new Error('resetDb refused: NODE_ENV must be test and TEST_DATABASE_URL set');
   }
-  const dbName = new URL(url).pathname.replace(/^\//, '');
-  if (!/test/i.test(dbName)) throw new Error(`resetDb refused: ${dbName} is not a test database`);
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error('resetDb refused: TEST_DATABASE_URL is not a valid URL');
+  }
+  const dbName = decodeURIComponent(parsed.pathname.replace(/^\//, ''));
+  if (dbName !== 'shop_test') throw new Error(`resetDb refused: database ${dbName} is not shop_test`);
+  if (!['127.0.0.1', 'localhost'].includes(parsed.hostname)) {
+    throw new Error(`resetDb refused: host ${parsed.hostname} is not local`);
+  }
   return dbName;
 }
 
 export async function resetDb() {
-  const dbName = assertTestDatabase();
+  const dbName = assertTestDatabaseUrl(process.env.TEST_DATABASE_URL);
   const { rows } = await query('SELECT current_database() AS db');
   if (rows[0].db !== dbName) throw new Error('resetDb refused: connected database is not the test database');
-  await seedAll(TEST_PASSWORD);
+  await seedAll(TEST_PASSWORD, { reset: true });
 }
 
 // Returns a supertest agent holding the login cookie (needs POST /api/auth/login, added with auth).

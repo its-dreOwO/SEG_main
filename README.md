@@ -10,4 +10,4 @@ Local test DB: `docker run -d --name shop-pg-test -e POSTGRES_PASSWORD=test -e P
 
 Deploy: `./deploy/deploy.sh`. Secrets live only in `/etc/shop-api.env` on the VPS.
 
-Seed (from repo root, uses `server/node_modules`): `SEED_PASSWORD=... DATABASE_URL=... node db/seed.js`. It drops and recreates all tables, so it is destructive. Tests: `NODE_ENV=test TEST_DATABASE_URL=... SEED_PASSWORD=x node db/seed.js` seeds the test DB; the tests call `resetDb()` themselves.
+Seed (from repo root, uses `server/node_modules`): `SEED_PASSWORD=... DATABASE_URL=... node db/seed.js --reset`. The `--reset` flag is required (it refuses without it). It drops and recreates all tables, so it is destructive. Tests: `NODE_ENV=test TEST_DATABASE_URL=... SEED_PASSWORD=x node db/seed.js --reset` seeds the test DB; the tests call `resetDb()` themselves.

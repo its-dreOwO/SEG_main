@@ -94,6 +94,8 @@ CREATE TABLE document_tags (
   PRIMARY KEY (document_id, tag_id)
 );
 
+CREATE INDEX document_tags_tag_idx ON document_tags (tag_id);
+
 CREATE TABLE search_click_log (
   id serial PRIMARY KEY,
   user_id int REFERENCES users(id) ON DELETE SET NULL,
@@ -120,6 +122,7 @@ CREATE TABLE comments (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX comments_document_idx ON comments (document_id);
+CREATE INDEX comments_parent_idx ON comments (parent_id);
 
 CREATE TABLE ratings (
   user_id int NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -145,6 +148,8 @@ CREATE TABLE flags (
   resolved_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE INDEX flags_comment_idx ON flags (comment_id);
+CREATE UNIQUE INDEX flags_one_per_reporter_idx ON flags (comment_id, reporter_id);
 
 CREATE TABLE orders (
   id serial PRIMARY KEY,
@@ -166,6 +171,7 @@ CREATE TABLE order_items (
   unit_price numeric(10, 2) NOT NULL,
   quantity int NOT NULL CHECK (quantity > 0)
 );
+CREATE INDEX order_items_order_idx ON order_items (order_id);
 
 CREATE TABLE system_logs (
   id serial PRIMARY KEY,

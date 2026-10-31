@@ -2,6 +2,8 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { query } from './db.js';
 import { createAuthRouter } from './routes/auth.js';
+import { createCatalogRouter } from './routes/catalog.js';
+import { createEngagementRouter } from './routes/engagement.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -22,6 +24,8 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.use('/api', createAuthRouter());
+app.use('/api', createCatalogRouter());
+app.use('/api', createEngagementRouter());
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 
