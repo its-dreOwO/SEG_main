@@ -67,7 +67,7 @@ SEED_PASSWORD='choose-a-password' DATABASE_URL=postgres://... node db/seed.js --
 
 - `--reset` is required. The script drops and recreates every table, so it is destructive; it refuses to run without the flag. Never run it against a database holding data you want to keep.
 - `SEED_PASSWORD` is the password given to every demo account. It is read from the environment only and is not stored in the repository.
-- The seed creates the roles and permissions, demo staff (one account per admin role) and customers, 8 categories, around 100 realistic products with English and Vietnamese titles and summaries, articles, tags, comments, ratings, likes, flags, sample orders and search/click history. No Lorem Ipsum.
+- The seed creates the roles and permissions, demo staff (one account per admin role) and customers, 8 categories, around 100 realistic products with English and Vietnamese titles and summaries, articles, tags, comments, ratings, flags, sample orders and search/click history. No Lorem Ipsum.
 - For the test database: `NODE_ENV=test TEST_DATABASE_URL=... SEED_PASSWORD=x node db/seed.js --reset`.
 
 ## Schema overview

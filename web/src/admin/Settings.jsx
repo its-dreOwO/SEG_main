@@ -31,7 +31,14 @@ export default function Settings() {
           {Object.keys(form).sort().map((k) => (
             <div className="field" key={k}>
               <label htmlFor={`s-${k}`}>{k}</label>
-              <input id={`s-${k}`} value={form[k] ?? ''} maxLength={500} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+              {k === 'comment_moderation' ? (
+                <select id={`s-${k}`} value={form[k] === 'on' ? 'on' : 'off'} onChange={(e) => setForm({ ...form, [k]: e.target.value })}>
+                  <option value="on">on</option>
+                  <option value="off">off</option>
+                </select>
+              ) : (
+                <input id={`s-${k}`} value={form[k] ?? ''} maxLength={500} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+              )}
             </div>
           ))}
           <button type="submit" className="btn btn--accent" disabled={busy}>{busy ? t('common.wait') : t('a.save')}</button>

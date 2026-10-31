@@ -71,7 +71,7 @@ export default function Header() {
           aria-label={menu ? t('header.closeMenu') : t('header.openMenu')}>
           {menu ? <CloseIcon /> : <MenuIcon />}
         </button>
-        <Link to="/" className="logo" aria-label={t('header.home')}><Logo /><span>Volt</span></Link>
+        <Link to="/" className="logo" aria-label={t('header.home')}><Logo /><span>{settings.storeName || 'Volt'}</span></Link>
         <a className="callus" href={`tel:${PHONE.replaceAll(' ', '')}`}>
           <HeadsetIcon size={26} />
           <span><small>{t('header.callUs')}</small><strong>{PHONE}</strong></span>

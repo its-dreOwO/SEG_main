@@ -113,7 +113,7 @@ function NewArrivals() {
         </div>
       </div>
       <div aria-live="polite">
-        {loading && <CardGridSkeleton n={8} />}
+        {loading && !data && <CardGridSkeleton n={8} />}
         {error && <Notice title={t('common.errorTitle')} action={<button type="button" className="btn btn--accent" onClick={reload}>{t('common.retry')}</button>}>{t('common.errorText')}</Notice>}
         {data && (data.items.length ? <ProductGrid items={data.items} /> : <Notice title={t('catalog.noneTitle')}>{t('catalog.none')}</Notice>)}
       </div>

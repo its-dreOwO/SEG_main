@@ -125,7 +125,7 @@ export default function Listing({ mode }) {
 
         <section aria-live="polite" aria-label={t('catalog.results')}>
           {!canFetch && <Notice title={t('search.emptyQueryTitle')}>{t('search.emptyQuery')}</Notice>}
-          {canFetch && loading && <CardGridSkeleton n={6} />}
+          {canFetch && loading && !data && <CardGridSkeleton n={6} />}
           {canFetch && error && <Notice title={t('common.errorTitle')} action={<button type="button" className="btn btn--accent" onClick={reload}>{t('common.retry')}</button>}>{t('common.errorText')}</Notice>}
           {canFetch && data && (
             data.items.length === 0

@@ -156,8 +156,9 @@ export async function seedContent() {
     const author = pick(rng, customers);
     const { rows } = await query(
       `INSERT INTO comments (document_id, user_id, body, status, created_at)
-       VALUES ($1, $2, $3, 'visible', $4) RETURNING id`,
-      [pick(rng, productIds), author.id, pick(rng, REVIEW_PHRASES), recentTs(rng)],
+       VALUES ($1, $2, $3, $5, $4) RETURNING id`,
+      // The last four comments are held for the moderator queue.
+      [pick(rng, productIds), author.id, pick(rng, REVIEW_PHRASES), recentTs(rng), i >= 146 ? 'pending' : 'visible'],
     );
     commentIds.push(rows[0].id);
     commentAuthor.set(rows[0].id, author.id);

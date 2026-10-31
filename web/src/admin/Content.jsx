@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { useT } from '../i18n.jsx';
 import { useApi } from '../hooks.js';
+import { useAuth } from '../auth.jsx';
 import { ConfirmButton, PageHead, Pager, Scroll, SearchBox, Status, useAll, useFlash, useSearchPage } from './ui.jsx';
 
 export default function Content() {
@@ -89,7 +90,7 @@ export default function Content() {
 
 const EMPTY = {
   kind: 'product', status: 'draft', title: '', title_vi: '', summary: '', summary_vi: '', content: '', content_vi: '',
-  price: '', compare_at_price: '', stock: '0', brand: '', image_url: '', category_id: '', tags: '',
+  price: '', compare_at_price: '', stock: '0', brand: '', author: '', image_url: '', category_id: '', tags: '',
 };
 
 export function DocForm() {
@@ -99,17 +100,21 @@ export function DocForm() {
   const isNew = !id;
   const { data, loading, error, reload } = useApi(isNew ? null : `/admin/documents/${id}`);
   const [cats, setCats] = useState([]);
+  const { user } = useAuth();
   const [f, setF] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const flash = useFlash();
 
+  useEffect(() => {
+    if (isNew && user) setF((s) => (s.author ? s : { ...s, author: user.display_name }));
+  }, [isNew, user]);
   useEffect(() => { api('/categories').then(setCats).catch(() => {}); }, []);
   useEffect(() => {
     if (!data) return;
     setF({
       kind: data.kind, status: data.status, title: data.title ?? '', title_vi: data.title_vi ?? '', summary: data.summary ?? '', summary_vi: data.summary_vi ?? '',
       content: data.content ?? '', content_vi: data.content_vi ?? '', price: data.price ?? '', compare_at_price: data.compare_at_price ?? '',
-      stock: String(data.stock ?? 0), brand: data.brand ?? '', image_url: data.image_url ?? '', category_id: data.category_id ?? '', tags: (data.tags || []).join(', '),
+      stock: String(data.stock ?? 0), brand: data.brand ?? '', author: data.author ?? '', image_url: data.image_url ?? '', category_id: data.category_id ?? '', tags: (data.tags || []).join(', '),
     });
   }, [data]);
 
@@ -122,11 +127,12 @@ export function DocForm() {
     if (!f.title.trim()) { flash.fail({ message: t('a.titleRequired') }); return; }
     const num = (v) => (v === '' || v == null ? null : Number(v));
     const body = {
-      kind: f.kind, status: f.status, title: f.title.trim(), title_vi: f.title_vi || null, summary: f.summary || null, summary_vi: f.summary_vi || null,
-      content: f.content || null, content_vi: f.content_vi || null, image_url: f.image_url || null,
+      kind: f.kind, status: f.status, title: f.title.trim(), title_vi: f.title_vi || null, summary: f.summary, summary_vi: f.summary_vi,
+      content: f.content, content_vi: f.content_vi, author: f.author.trim() || null, image_url: f.image_url || null,
       category_id: f.category_id === '' ? null : Number(f.category_id),
       tags: f.tags.split(',').map((x) => x.trim()).filter(Boolean),
     };
+    if (isProduct && f.status === 'published' && (f.price === '' || f.price == null)) { flash.fail({ message: t('a.priceRequired') }); return; }
     if (isProduct) {
       body.price = num(f.price); body.compare_at_price = num(f.compare_at_price);
       body.stock = Number.parseInt(f.stock || '0', 10); body.brand = f.brand || null;
@@ -212,6 +218,7 @@ export function DocForm() {
               </select>
             </div>
           </div>
+          {field('author', t('a.author'), { maxLength: 100 })}
           {field('image_url', t('a.imageUrl'), { placeholder: '/img/products/example.svg' })}
           {field('tags', t('a.tags'))}
           <p className="hint">{t('a.tagsHint')}</p>

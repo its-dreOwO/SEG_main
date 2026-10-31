@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useT } from '../i18n.jsx';
 import { useAuth } from '../auth.jsx';
@@ -57,7 +57,16 @@ export default function Product() {
   const [comment, setComment] = useState('');
   const [tagName, setTagName] = useState('');
 
-  useTitle(doc ? pick(doc, 'title') : '');
+  useTitle(doc ? (doc.seo_title || pick(doc, 'title')) : '');
+  useEffect(() => {
+    if (!doc?.seo_description) return undefined;
+    let m = document.querySelector('meta[name="description"]');
+    const created = !m;
+    if (!m) { m = document.createElement('meta'); m.name = 'description'; document.head.appendChild(m); }
+    const prev = m.content;
+    m.content = doc.seo_description;
+    return () => { if (created) m.remove(); else m.content = prev; };
+  }, [doc?.seo_description]);
 
   if (loading) return <div className="container page"><div className="product-skel"><div className="skeleton product-skel__img" /><div><div className="skeleton skeleton--line" /><div className="skeleton skeleton--line short" /><div className="skeleton skeleton--line" /></div></div></div>;
   if (error?.status === 404) return <NotFound />;
@@ -106,6 +115,17 @@ export default function Product() {
       setData((d) => (d.tags.some((x) => x.id === tag.id) ? d : { ...d, tags: [...d.tags, { ...tag, added_by: user.id }].sort((a, b) => a.name.localeCompare(b.name)) }));
       setTagName('');
     });
+  };
+  const report = async (c) => {
+    const reason = window.prompt(t('product.reportPrompt'));
+    if (!reason || !reason.trim()) return;
+    setBusy(true); setMsg('');
+    try {
+      await api(`/comments/${c.id}/flag`, { method: 'POST', body: { reason: reason.trim().slice(0, 500) } });
+      setMsg(t('product.reported'));
+    } catch (e) {
+      setMsg(e.status === 409 ? t('product.alreadyReported') : errText(e, t));
+    } finally { setBusy(false); }
   };
   const postComment = (e) => {
     e.preventDefault();
@@ -222,6 +242,7 @@ export default function Product() {
               <li key={c.id}>
                 <p className="comments__who"><strong>{c.author}</strong> <time dateTime={c.created_at}>{date(c.created_at)}</time></p>
                 <p className="comments__body">{c.body}</p>
+                {user && <button type="button" className="btn btn--ghost btn--sm" disabled={busy} onClick={() => report(c)}>{t('product.report')}</button>}
               </li>
             ))}
           </ul>
