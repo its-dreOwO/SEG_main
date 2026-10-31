@@ -5,6 +5,7 @@ import { useCart } from '../cart.jsx';
 import { discountPercent } from '../money.js';
 import Stars from './Stars.jsx';
 import ProductImage from './ProductImage.jsx';
+import { flyToCart } from '../motion/index.js';
 
 export default function ProductCard({ product, onOpen }) {
   const { t, pick, price, catName } = useT();
@@ -19,8 +20,9 @@ export default function ProductCard({ product, onOpen }) {
   const off = discountPercent(product.price, product.compare_at_price);
   const to = `/product/${product.slug}`;
 
-  const addToCart = () => {
+  const addToCart = (e) => {
     cart.add(product, 1);
+    flyToCart(e.currentTarget.closest('.card'));
     setAdded(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setAdded(false), 1600);

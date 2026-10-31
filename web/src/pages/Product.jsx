@@ -8,6 +8,7 @@ import { errText, useApi, useTitle } from '../hooks.js';
 import { discountPercent } from '../money.js';
 import Stars from '../components/Stars.jsx';
 import ProductImage from '../components/ProductImage.jsx';
+import { flyToCart } from '../motion/index.js';
 import { Notice } from '../components/Skeleton.jsx';
 import { HeartIcon, StarShape } from '../components/Icons.jsx';
 import NotFound from './NotFound.jsx';
@@ -80,6 +81,7 @@ export default function Product() {
   };
 
   const addToCart = () => {
+    flyToCart(document.querySelector('.pdp__media'));
     cart.add(doc, Math.min(qty, Math.max(room, 1)));
     setAdded(true);
     setTimeout(() => setAdded(false), 1600);

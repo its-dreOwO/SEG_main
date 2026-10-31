@@ -1,0 +1,9 @@
+/* Hover motion, CSS only. Reduced motion removes all movement. */
+.flip { display: inline-block; transform-origin: 50% 50%; }
+.card__media img { transition: transform 0.25s ease; will-change: auto; }
+@media (hover: hover) {
+  .card:hover .card__media img, .card:focus-within .card__media img { transform: translateY(-6px) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:hover .card__media img, .card:focus-within .card__media img { transform: none; }
+}

@@ -8,6 +8,7 @@ import { CardGridSkeleton, Notice, ProductGrid } from '../components/Skeleton.js
 import ProductImage from '../components/ProductImage.jsx';
 import { CashIcon, HelpIcon, ReturnIcon, TruckIcon } from '../components/Icons.jsx';
 import { useCart } from '../cart.jsx';
+import { FlipDigit, flyToCart, useHeroSequence, useReveal } from '../motion/index.js';
 
 const PRODUCTS = '/documents?kind=product';
 
@@ -37,9 +38,10 @@ function PriceLine({ p, big }) {
 function Hero({ pool }) {
   const { t, pick, price } = useT();
   const { hero, promos } = pool;
+  const ref = useHeroSequence(Boolean(hero));
   if (!hero) return pool.loaded ? null : <div className="hero hero--skeleton skeleton" aria-hidden="true" />;
   return (
-    <section className="hero" aria-label={t('home.hero.label')}>
+    <section className="hero" aria-label={t('home.hero.label')} ref={ref}>
       <div className="hero__main">
         <div className="hero__text">
           <p className="eyebrow">{t('home.hero.eyebrow')}</p>
@@ -69,6 +71,7 @@ function Hero({ pool }) {
 function CategoryRow() {
   const { t, pick, categories } = useT();
   const [tiles, setTiles] = useState(null);
+  const ref = useReveal('.cats li', [categories.length]);
   useEffect(() => {
     if (!categories.length) return undefined;
     let live = true;
@@ -77,7 +80,7 @@ function CategoryRow() {
     return () => { live = false; };
   }, [categories]);
   return (
-    <section className="section" aria-labelledby="cats-h">
+    <section className="section" aria-labelledby="cats-h" ref={ref}>
       <h2 id="cats-h" className="section-title section-title--center">{t('home.categories')}</h2>
       <ul className="cats">
         {(tiles || categories.map((c) => ({ c, total: null, sample: null }))).map(({ c, total, sample }) => (
@@ -136,12 +139,13 @@ function Deal({ deal }) {
   const { t, pick } = useT();
   const cart = useCart();
   const { h, m, s } = useCountdown();
+  const ref = useReveal('.deal__left, .deal__right, .deal__art', [Boolean(deal)], { stagger: 0.1, y: 0 });
   const two = (n) => String(n).padStart(2, '0');
   if (!deal) return null;
   const off = discountPercent(deal.price, deal.compare_at_price);
   const soldOut = deal.stock <= 0;
   return (
-    <section className="deal" aria-labelledby="deal-h" id="deal">
+    <section className="deal" aria-labelledby="deal-h" id="deal" ref={ref}>
       <div className="deal__left">
         <p className="eyebrow">{t('home.deal.eyebrow')}</p>
         <h2 id="deal-h">{pick(deal, 'title')}</h2>
@@ -152,7 +156,7 @@ function Deal({ deal }) {
         <div className="countdown" role="timer" aria-label={t('home.deal.endsIn')}>
           {[[h, t('home.deal.hours')], [m, t('home.deal.minutes')], [s, t('home.deal.seconds')]].map(([n, label], i) => (
             <div key={label} className="countdown__cell">
-              <span className="countdown__n" aria-hidden={false}>{two(n)}</span>
+              <FlipDigit className="countdown__n" value={two(n)} />
               <small>{label}</small>
               {i < 2 && <span className="countdown__sep" aria-hidden="true">:</span>}
             </div>
@@ -160,7 +164,7 @@ function Deal({ deal }) {
         </div>
         <div className="deal__actions">
           <Link to={`/product/${deal.slug}`} className="btn btn--outline">{t('home.deal.details')}</Link>
-          <button type="button" className="btn btn--accent" disabled={soldOut} onClick={() => cart.add(deal, 1)}>{soldOut ? t('card.soldOut') : t('card.add')}</button>
+          <button type="button" className="btn btn--accent" disabled={soldOut} onClick={(e) => { flyToCart(e.currentTarget.closest('.deal')?.querySelector('.deal__art')); cart.add(deal, 1); }}>{soldOut ? t('card.soldOut') : t('card.add')}</button>
         </div>
       </div>
       <div className="deal__right" aria-hidden="true" />
@@ -171,11 +175,12 @@ function Deal({ deal }) {
 
 function Services() {
   const { t } = useT();
+  const ref = useReveal('li', []);
   const items = [
     [TruckIcon, 'delivery'], [ReturnIcon, 'returns'], [CashIcon, 'cod'], [HelpIcon, 'help'],
   ];
   return (
-    <section className="services" aria-label={t('home.services.label')}>
+    <section className="services" aria-label={t('home.services.label')} ref={ref}>
       <ul>
         {items.map(([Icon, k]) => (
           <li key={k}><Icon size={34} /><div><strong>{t(`home.services.${k}`)}</strong><span>{t(`home.services.${k}Text`)}</span></div></li>
@@ -204,9 +209,10 @@ function TopSelling() {
 function Articles() {
   const { t, pick, date } = useT();
   const { data } = useApi('/documents?kind=article&limit=3');
+  const ref = useReveal('.article', [data]);
   if (!data || !data.items.length) return null;
   return (
-    <section className="section" aria-labelledby="blog-h">
+    <section className="section" aria-labelledby="blog-h" ref={ref}>
       <h2 id="blog-h" className="section-title">{t('home.articles')}</h2>
       <div className="articles">
         {data.items.map((a, i) => (

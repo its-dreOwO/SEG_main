@@ -1,5 +1,6 @@
 import ProductCard from './ProductCard.jsx';
 import { useT } from '../i18n.jsx';
+import { useReveal } from '../motion/index.js';
 
 export function CardGridSkeleton({ n = 4 }) {
   const { t } = useT();
@@ -16,8 +17,9 @@ export function CardGridSkeleton({ n = 4 }) {
 }
 
 export function ProductGrid({ items, onOpen }) {
+  const ref = useReveal('.card', [items]);
   return (
-    <div className="grid">
+    <div className="grid" ref={ref}>
       {items.map((p) => <ProductCard key={p.id} product={p} onOpen={onOpen} />)}
     </div>
   );
