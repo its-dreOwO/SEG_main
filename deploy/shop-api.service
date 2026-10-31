@@ -1,0 +1,20 @@
+[Unit]
+Description=Tech store API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=shopapi
+Group=shopapi
+WorkingDirectory=/opt/shop-api
+EnvironmentFile=/etc/shop-api.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
