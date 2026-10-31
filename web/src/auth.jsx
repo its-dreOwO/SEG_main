@@ -22,8 +22,10 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     const { user: u } = await api('/auth/login', { method: 'POST', body: { email, password } });
     setFlag(true);
-    setUser(u);
-    return u;
+    // The login response has no permissions; /me does, so staff can be sent to the admin area.
+    const me = await api('/me').catch(() => u);
+    setUser(me);
+    return me;
   }, []);
 
   const register = useCallback(async (display_name, email, password) => {

@@ -36,6 +36,7 @@ export default function AdminApp() {
   useTitle(t('a.title'));
 
   useEffect(() => {
+    setPerms(null); setFailed(false);
     if (!user) return;
     api('/me').then((m) => setPerms(m.permissions || [])).catch(() => setFailed(true));
   }, [user]);

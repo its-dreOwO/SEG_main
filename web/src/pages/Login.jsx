@@ -9,22 +9,24 @@ export default function Login() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const from = state?.from || '/';
+  const next = state?.from;
+  const from = next || '/';
+  const home = (u) => (next ? next : u?.permissions?.length ? '/admin' : '/');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   useTitle(t('auth.login'));
 
-  if (user) return <Navigate to={from} replace />;
+  if (user) return <Navigate to={home(user)} replace />;
 
   const submit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) { setError(t('auth.fillAll')); return; }
     setBusy(true); setError('');
     try {
-      await login(email.trim(), password);
-      navigate(from, { replace: true });
+      const u = await login(email.trim(), password);
+      navigate(home(u), { replace: true });
     } catch (err) {
       setError(err.status === 401 ? t('auth.badLogin') : errText(err, t));
       setBusy(false);

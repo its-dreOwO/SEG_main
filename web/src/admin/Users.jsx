@@ -39,7 +39,7 @@ export default function Users() {
                     <td>{u.display_name}</td>
                     <td>{u.email}</td>
                     <td>
-                      <select aria-label={`${t('a.role')} ${u.email}`} value={u.role} disabled={busy === u.id}
+                      <select aria-label={`${t('a.role')} ${u.email}`} value={u.role} disabled={busy === u.id || u.id === me.id}
                         onChange={(e) => run(u, 'role', { role: e.target.value }, { role: e.target.value })}>
                         {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>

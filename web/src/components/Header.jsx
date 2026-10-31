@@ -81,6 +81,7 @@ export default function Header() {
           <Link to={user ? '/profile' : '/login'} className="icon-link" aria-label={user ? t('header.account') : t('header.login')}>
             <UserIcon /><span className="icon-link__text">{user ? user.display_name.split(' ')[0] : t('header.login')}</span>
           </Link>
+          {user?.permissions?.length > 0 && <Link to="/admin" className="icon-link"><span className="icon-link__text">{t('header.admin')}</span></Link>}
           <Link to="/cart" className="icon-link" aria-label={t('header.cart', { n: count })}>
             <CartIcon /><span className="cart-count" data-cart-count>{count}</span>
           </Link>

@@ -5,6 +5,7 @@ import { useApi } from '../hooks.js';
 import { PageHead, Scroll, Status, useFlash } from './ui.jsx';
 
 const PERMS = ['users.manage', 'roles.manage', 'logs.view', 'settings.manage', 'content.manage', 'taxonomy.manage', 'moderation.manage', 'seo.manage', 'analytics.view'];
+const LOCKED = ['roles.manage', 'users.manage']; // super_admin must keep these
 
 export default function Roles() {
   const { t } = useT();
@@ -50,7 +51,7 @@ export default function Roles() {
                   <th scope="row">{code}</th>
                   {data.map((r) => (
                     <td key={r.id} className="center">
-                      <input type="checkbox" aria-label={`${r.name}: ${code}`} checked={(grid[r.id] || []).includes(code)} onChange={() => toggle(r.id, code)} />
+                      <input type="checkbox" aria-label={`${r.name}: ${code}`} checked={(grid[r.id] || []).includes(code)} disabled={r.name === 'super_admin' && LOCKED.includes(code)} onChange={() => toggle(r.id, code)} />
                     </td>
                   ))}
                 </tr>

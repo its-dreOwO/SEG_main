@@ -2,6 +2,8 @@
 export const articles = [
   {
     slug: 'how-to-choose-wireless-headphones',
+    image: '/img/products/sony-wh-1000xm5.svg',
+    image_alt: 'Wireless headphones illustration',
     title: 'How to Choose Wireless Headphones',
     title_vi: 'Hướng dẫn chọn tai nghe không dây',
     summary: 'A short guide to noise cancelling, battery life, fit and codecs, so you can pick headphones that suit how you listen.',
@@ -24,6 +26,8 @@ export const articles = [
   },
   {
     slug: 'how-to-choose-a-laptop-for-work-and-study',
+    image: '/img/products/dell-xps-13-9340.svg',
+    image_alt: 'Laptop illustration',
     title: 'How to Choose a Laptop for Work and Study',
     title_vi: 'Hướng dẫn chọn laptop cho công việc và học tập',
     summary: 'What to look for in a laptop for office work, online classes and writing, from memory and storage to battery and keyboard.',
@@ -46,6 +50,8 @@ export const articles = [
   },
   {
     slug: 'how-to-choose-a-monitor-for-work-and-games',
+    image: '/img/products/dell-u2723qe.svg',
+    image_alt: 'Monitor illustration',
     title: 'How to Choose a Monitor for Work and Games',
     title_vi: 'Hướng dẫn chọn màn hình cho công việc và chơi game',
     summary: 'A practical guide to resolution, refresh rate, panel type and connections, so your next monitor fits both your desk and your games.',

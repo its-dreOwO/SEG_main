@@ -175,3 +175,20 @@ test('analytics returns the expected shape; zero-result searches use result_coun
   assert.ok(res.body.viewsByDay.length >= 1);
   assert.equal(res.body.clickThrough.clicks, 1);
 });
+
+test('a user cannot change their own role', async () => {
+  const self = await userIdOf('admin@shop.test');
+  assert.equal((await agents.super_admin.patch(`/api/admin/users/${self}/role`).send({ role: 'customer' })).status, 400);
+  assert.equal((await query('SELECT r.name FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = $1', [self])).rows[0].name, 'super_admin');
+});
+
+test('super_admin cannot lose roles.manage or users.manage', async () => {
+  const s = agents.super_admin;
+  const sa = (await s.get('/api/admin/roles')).body.find((r) => r.name === 'super_admin');
+  const put = (perms) => s.put(`/api/admin/roles/${sa.id}/permissions`).send({ permissions: perms });
+  assert.equal((await put(sa.permissions.filter((c) => c !== 'roles.manage'))).status, 400);
+  assert.equal((await put(sa.permissions.filter((c) => c !== 'users.manage'))).status, 400);
+  assert.deepEqual((await s.get('/api/admin/roles')).body.find((r) => r.name === 'super_admin').permissions, sa.permissions);
+  assert.equal((await put(sa.permissions.filter((c) => c !== 'logs.view'))).status, 200);
+  assert.equal((await put(sa.permissions)).status, 200);
+});

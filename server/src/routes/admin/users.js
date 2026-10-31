@@ -20,6 +20,7 @@ export function createUsersAdminRouter() {
     const id = toId(req.params.id);
     const role = req.body?.role;
     if (id === null || typeof role !== 'string') return bad(res, 'role is required');
+    if (id === req.user.id) return bad(res, 'You cannot change your own role');
     const r = (await query('SELECT id FROM roles WHERE name = $1', [role])).rows[0];
     if (!r) return bad(res, 'Unknown role');
     const u = await query('UPDATE users SET role_id = $1 WHERE id = $2 RETURNING id', [r.id, id]);
@@ -55,8 +56,11 @@ export function createUsersAdminRouter() {
     const id = toId(req.params.id);
     const codes = req.body?.permissions;
     if (id === null || !Array.isArray(codes) || codes.some((c) => typeof c !== 'string')) return bad(res, 'permissions must be an array of codes');
-    const role = (await query('SELECT id FROM roles WHERE id = $1', [id])).rows[0];
+    const role = (await query('SELECT id, name FROM roles WHERE id = $1', [id])).rows[0];
     if (!role) return notFound(res);
+    if (role.name === 'super_admin' && !(codes.includes('roles.manage') && codes.includes('users.manage'))) {
+      return bad(res, 'super_admin must keep roles.manage and users.manage');
+    }
     const perms = (await query('SELECT id FROM permissions WHERE code = ANY($1)', [codes])).rows;
     if (perms.length !== new Set(codes).size) return bad(res, 'Unknown permission code');
     const client = await pool.connect();
