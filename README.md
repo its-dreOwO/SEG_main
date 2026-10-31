@@ -100,7 +100,7 @@ Defined in `db/schema.sql`.
 | Version control | Git, GitHub repository above |
 | Home and directory: paginated latest items with snippets | Home (new arrivals) and `/shop`: 12 per page with pager, summary snippets on cards and hero |
 | Detail view: content, images, metadata | `/product/:slug` and `/article/:slug`: full content, image, author, date, view count, category, tags |
-| Registration, login, profile management | `/register`, `/login`, `/profile` (name, bio, password, order history) |
+| Registration, login, profile management | `/register`, `/login`, `/profile` (display name, bio, order history) |
 | Commenting, rating/liking, user tagging | On the detail page: comments (with flagging), 1 to 5 star rating, like, and logged-in users add tags |
 | Keyword search (LIKE) | `/search?q=`, case and accent insensitive over title, summary and content, so `tai nghe` finds headphones; clicks are logged |
 | Filters: category, tag, date range | Filter panel on `/shop` and `/search` (also price and sort) |
