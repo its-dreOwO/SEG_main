@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
+ aria-label="Marshall Emberton II">
+<rect width="400" height="300" fill="#ddf1e2"/>
+<rect x="135" y="52" width="130" height="210" rx="24" fill="#4a3f5c"/>
+<circle cx="200" cy="96" r="14" fill="#5a6270"/>
+<circle cx="200" cy="178" r="42" fill="#5a6270"/>
+<circle cx="200" cy="178" r="22" fill="#4f8ef7"/>
+<text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Marshall</text>
+</svg>

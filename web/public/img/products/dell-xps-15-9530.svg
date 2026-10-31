@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
+ aria-label="Dell XPS 15 (9530)">
+<rect width="400" height="300" fill="#e8e4fb"/>
+<rect x="108" y="52" width="184" height="130" rx="8" fill="#4a3f5c"/>
+<rect x="118" y="62" width="164" height="110" rx="3" fill="#e9f1fb"/>
+<rect x="80" y="182" width="240" height="14" rx="7" fill="#5a6270"/>
+<rect x="170" y="182" width="60" height="5" rx="2.5" fill="#f0c24b"/>
+<text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Dell</text>
+</svg>

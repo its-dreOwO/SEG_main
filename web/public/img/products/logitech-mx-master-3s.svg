@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
+ aria-label="Logitech MX Master 3S">
+<rect width="400" height="300" fill="#fde5e1"/>
+<rect x="160" y="92" width="80" height="130" rx="40" fill="#2b2f3a"/>
+<rect x="198" y="98" width="4" height="46" rx="2" fill="#5a6270"/>
+<rect x="160" y="152" width="80" height="3" rx="0" fill="#5a6270"/>
+<rect x="186" y="92" width="28" height="50" rx="14" fill="#f0c24b"/>
+<text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Logitech</text>
+</svg>
