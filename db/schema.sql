@@ -101,6 +101,7 @@ CREATE TABLE search_click_log (
   user_id int REFERENCES users(id) ON DELETE SET NULL,
   query_string text NOT NULL DEFAULT '',
   clicked_doc_id int REFERENCES documents(id) ON DELETE SET NULL,
+  result_count int,
   "timestamp" timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX search_click_log_ts_idx ON search_click_log ("timestamp");

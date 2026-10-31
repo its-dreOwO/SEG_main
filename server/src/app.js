@@ -5,6 +5,7 @@ import { createAuthRouter } from './routes/auth.js';
 import { createCatalogRouter } from './routes/catalog.js';
 import { createEngagementRouter } from './routes/engagement.js';
 import { createOrdersRouter } from './routes/orders.js';
+import { createAdminRouter } from './routes/admin/index.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -28,6 +29,7 @@ app.use('/api', createAuthRouter());
 app.use('/api', createCatalogRouter());
 app.use('/api', createEngagementRouter());
 app.use('/api', createOrdersRouter());
+app.use('/api/admin', createAdminRouter());
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 

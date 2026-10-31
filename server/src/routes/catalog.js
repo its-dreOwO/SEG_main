@@ -114,9 +114,10 @@ export function createCatalogRouter() {
     const items = rows.map(({ sold, ...rest }) => rest);
 
     if (term) {
-      await query('INSERT INTO search_click_log (user_id, query_string) VALUES ($1, $2)', [
+      await query('INSERT INTO search_click_log (user_id, query_string, result_count) VALUES ($1, $2, $3)', [
         req.user?.id ?? null,
         term.slice(0, 200),
+        total,
       ]);
     }
     res.json({ items, total, page, pages: Math.ceil(total / limit) });

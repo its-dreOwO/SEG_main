@@ -5,7 +5,7 @@ import { stripHtml } from './auth.js';
 
 const toId = (v) => (/^\d{1,9}$/.test(String(v)) ? Number(v) : null);
 
-function slugify(name) {
+export function slugify(name) {
   return name
     .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
