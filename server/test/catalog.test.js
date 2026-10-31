@@ -44,7 +44,7 @@ test('GET /api/settings/public', async () => {
   const res = await request(app).get('/api/settings/public');
   assert.equal(res.status, 200);
   assert.deepEqual(Object.keys(res.body).sort(), ['banner', 'moderation', 'storeName', 'vndRate']);
-  assert.equal(res.body.storeName, 'Tech Store');
+  assert.equal(res.body.storeName, 'Volt');
   assert.equal(res.body.vndRate, 25000);
   assert.equal(res.body.moderation, false);
 });

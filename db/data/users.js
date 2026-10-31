@@ -41,7 +41,7 @@ export const categories = [
 ];
 
 export const settings = {
-  store_name: 'Tech Store',
+  store_name: 'Volt',
   promo_banner: 'Free shipping on orders over $50',
   vnd_rate: '25000',
   comment_moderation: 'off',

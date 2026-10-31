@@ -33,7 +33,7 @@ export function createCatalogRouter() {
     const { rows } = await query('SELECT key, value FROM settings');
     const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
     res.json({
-      storeName: s.store_name ?? 'Tech Store',
+      storeName: s.store_name ?? 'Volt',
       banner: s.promo_banner ?? '',
       vndRate: Number(s.vnd_rate) || 25000,
       moderation: s.comment_moderation === 'on',

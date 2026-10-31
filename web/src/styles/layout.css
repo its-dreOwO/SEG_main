@@ -6,8 +6,8 @@
 .topbar { background: var(--grey); font-size: 0.8rem; }
 .topbar__in { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 38px; }
 .topbar__msg { margin: 0; font-weight: 500; }
-.lang { display: flex; gap: 2px; }
-.lang button { border: 0; background: transparent; padding: 6px 10px; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; }
+.lang { display: flex; gap: 2px; flex: none; }
+.lang button { white-space: nowrap; border: 0; background: transparent; padding: 6px 10px; font-size: 0.78rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; }
 .lang button.is-on { background: var(--ink); color: #fff; }
 .lang button:not(.is-on):hover { color: var(--ink); }
 
@@ -21,7 +21,7 @@
 .searchbar { flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 0 14px; background: #fff; min-width: 0; }
 .searchbar:focus-within { border-color: var(--ink); outline: 3px solid var(--accent); outline-offset: 0; }
 .searchbar svg { color: var(--accent); flex: none; }
-.searchbar input { border: 0; min-height: 44px; padding: 0; outline: none !important; }
+.searchbar input { border: 0; min-height: 44px; height: 44px; padding: 0; line-height: 44px; outline: none !important; }
 .header-icons { display: flex; align-items: center; gap: 6px; }
 .icon-link, .icon-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 8px; background: none; border: 0; font-weight: 600; font-size: 0.9rem; }
 .icon-link:hover { color: var(--accent); }
@@ -35,7 +35,7 @@
 .navrow { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; position: relative; z-index: 20; }
 .navrow__in { display: flex; align-items: center; gap: 36px; min-height: 52px; }
 .allcats { position: relative; }
-.allcats__btn { display: inline-flex; align-items: center; gap: 10px; background: none; border: 0; font-weight: 600; font-size: 0.9rem; padding: 10px 0; }
+.allcats__btn { white-space: nowrap; display: inline-flex; align-items: center; gap: 10px; background: none; border: 0; font-weight: 600; font-size: 0.9rem; padding: 10px 0; }
 .allcats__btn svg:first-child { color: var(--accent); }
 .allcats__menu { position: absolute; top: 100%; left: 0; min-width: 240px; background: #fff; border: 1px solid var(--line); padding: 8px 0; z-index: 30; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08); }
 .allcats__menu a { display: block; padding: 10px 20px; font-size: 0.92rem; }

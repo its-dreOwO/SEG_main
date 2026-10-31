@@ -117,6 +117,18 @@ export async function seedContent() {
     });
   }
   const productIds = products.map((p) => docId.get(p.slug));
+
+  // Spread product created_at over the last 60 days in a shuffled (deterministic) order, so "newest" mixes categories.
+  const order = productIds.map((_, i) => i);
+  const dateRng = makeRng(DEMO_RNG_SEED + 1);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(dateRng() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  for (let k = 0; k < order.length; k++) {
+    const ts = new Date(DEMO_END - Math.floor((k * 60 * DAY_MS) / order.length)).toISOString();
+    await query('UPDATE documents SET created_at = $1, updated_at = $1 WHERE id = $2', [ts, productIds[order[k]]]);
+  }
   const allIds = [...docId.values()];
 
   // Tags: one row per distinct tag name, linked to the product that carries it.
@@ -161,12 +173,12 @@ export async function seedContent() {
     }
   }
 
-  // Flags: five reports on distinct comments, reported by a customer who did not write the comment.
+  // Flags: five reports (four left open) on distinct comments, reported by a customer who did not write the comment.
   const flaggedComments = commentIds.slice(0, 5);
   for (let i = 0; i < flaggedComments.length; i++) {
     const commentId = flaggedComments[i];
     const reporter = customers.find((c) => c.id !== commentAuthor.get(commentId)) ?? customers[0];
-    const resolved = i < 2 && moderator;
+    const resolved = i < 1 && moderator; // one resolved, four open for the moderator queue
     await query(
       `INSERT INTO flags (comment_id, reporter_id, reason, resolution, resolved_by, resolved_at, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
