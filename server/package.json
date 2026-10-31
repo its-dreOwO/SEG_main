@@ -6,9 +6,10 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "NODE_ENV=test node --test test/"
+    "test": "NODE_ENV=test node --test --test-concurrency=1 test/"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^4.21.2",
     "pg": "^8.13.1"
   },

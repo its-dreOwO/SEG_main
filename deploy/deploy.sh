@@ -29,6 +29,10 @@ tar -C server --exclude=node_modules --exclude=test -cf - . | "${SSH[@]}" \
   "sudo mkdir -p /opt/shop-api && sudo chown -R admin:admin /opt/shop-api && tar -C /opt/shop-api -xf -"
 "${SSH[@]}" "cd /opt/shop-api && npm ci --omit=dev --no-audit --no-fund"
 
+# --- db (schema + seed scripts; not run here). db/seed.js imports ../server/src, so link server -> . on the VPS.
+# Seed later with: cd /opt/shop-api && set -a && . /etc/shop-api.env && set +a && SEED_PASSWORD=... node db/seed.js
+tar -cf - db | "${SSH[@]}" "tar -C /opt/shop-api -xf - && ln -sfn . /opt/shop-api/server"
+
 # --- service ---
 cat deploy/shop-api.service | "${SSH[@]}" "sudo tee /etc/systemd/system/shop-api.service >/dev/null && sudo systemctl daemon-reload && sudo systemctl enable shop-api >/dev/null 2>&1 && sudo systemctl restart shop-api"
 sleep 2
