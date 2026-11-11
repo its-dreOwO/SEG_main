@@ -11,7 +11,13 @@ export default function Login() {
   const { state } = useLocation();
   const next = state?.from;
   const from = next || '/';
-  const home = (u) => (next ? next : u?.permissions?.length ? '/admin' : '/');
+  // Staff land in the admin area; an account with only the dashboard permission lands on /db.
+  const home = (u) => {
+    if (next) return next;
+    const perms = u?.permissions || [];
+    if (perms.some((c) => c !== 'db.view')) return '/admin';
+    return perms.includes('db.view') ? '/db' : '/';
+  };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

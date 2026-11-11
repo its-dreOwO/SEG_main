@@ -41,7 +41,7 @@ test('admin lists paginate', async () => {
   const res = await agents.super_admin.get('/api/admin/users?limit=2&page=2');
   assert.equal(res.body.items.length, 2);
   assert.equal(res.body.page, 2);
-  assert.equal(res.body.total, 7);
+  assert.equal(res.body.total, 8);
   assert.equal(res.body.pages, 4);
 });
 

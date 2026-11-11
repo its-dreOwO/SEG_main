@@ -11,6 +11,7 @@ export const ROLE_EMAILS = {
   content_manager: 'content@shop.test',
   moderator: 'moderator@shop.test',
   seo_specialist: 'seo@shop.test',
+  store_manager: 'manager@shop.test',
   customer: 'linh@shop.test',
 };
 

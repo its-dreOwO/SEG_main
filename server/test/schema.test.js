@@ -38,16 +38,17 @@ const permsOf = async (role) =>
   )).rows.map((r) => r.code);
 
 test('roles carry their expected permission codes', async () => {
-  assert.deepEqual(await permsOf('super_admin'), ['logs.view', 'roles.manage', 'settings.manage', 'users.manage']);
+  assert.deepEqual(await permsOf('super_admin'), ['db.view', 'logs.view', 'roles.manage', 'settings.manage', 'users.manage']);
   assert.deepEqual(await permsOf('content_manager'), ['content.manage', 'taxonomy.manage']);
   assert.deepEqual(await permsOf('moderator'), ['moderation.manage']);
   assert.deepEqual(await permsOf('seo_specialist'), ['analytics.view', 'seo.manage']);
+  assert.deepEqual(await permsOf('store_manager'), ['db.view']);
   assert.deepEqual(await permsOf('customer'), []);
 });
 
 test('seed creates staff, customers, 8 categories and settings', async () => {
   const staff = await query(`SELECT count(*)::int n FROM users u JOIN roles r ON r.id = u.role_id WHERE r.name <> 'customer'`);
-  assert.equal(staff.rows[0].n, 4);
+  assert.equal(staff.rows[0].n, 5);
   assert.ok((await query(`SELECT count(*)::int n FROM users u JOIN roles r ON r.id=u.role_id WHERE r.name='customer'`)).rows[0].n >= 2);
   assert.equal((await query('SELECT count(*)::int n FROM categories')).rows[0].n, 8);
   const s = Object.fromEntries((await query('SELECT key, value FROM settings')).rows.map((r) => [r.key, r.value]));

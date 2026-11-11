@@ -3,6 +3,7 @@
 Volt is an online tech store (phones, laptops, headphones, monitors and more) with a catalogue of 100+ seeded products and articles, a working cart and mock checkout, user engagement features, and a role-based admin area. It is Phase 1 of a coursework project (SEG, slot 16); the data is shaped so a real search engine can be added in Phase 2.
 
 - Live site: https://shop.kodingkat.xyz
+- Database dashboard (Phase 2): https://shop.kodingkat.xyz/db (Super Admin or Store Manager login)
 - Repository: https://github.com/its-dreOwO/SEG_slot16 (private)
 - Demo logins are given in the separate submission note, not in this repository.
 
@@ -24,7 +25,7 @@ Browser --https--> Caddy (shop.kodingkat.xyz)
                      `-- /*      --> static React build (SPA fallback to index.html)
 ```
 
-- `server/src/app.js` wires the middleware and routes. `routes/catalog.js` (listing, detail, categories, tags, public settings), `routes/auth.js` (register, login, logout, profile), `routes/engagement.js` (comments, ratings, likes, tags, flags, search click log), `routes/orders.js` (checkout, order history), and `routes/admin/*` (users and roles, content and taxonomy, moderation, SEO and analytics).
+- `server/src/app.js` wires the middleware and routes. `routes/catalog.js` (listing, detail, categories, tags, public settings), `routes/auth.js` (register, login, logout, profile), `routes/engagement.js` (comments, ratings, likes, tags, flags, search click log), `routes/orders.js` (checkout, order history), `routes/dbdash.js` (read-only database dashboard), and `routes/admin/*` (users and roles, content and taxonomy, moderation, SEO and analytics).
 - Access control is permission based. Roles map to permissions in the database and every admin route checks the permission it needs, so the UI hiding a menu is never the only guard.
 - `web/src/pages` holds the storefront, `web/src/admin` the admin area, `web/src/locales.js` the EN/VI strings (prices switch between USD and VND with the language).
 - `deploy/` holds `deploy.sh` (build, upload over ssh, restart), `shop-api.service` and `Caddyfile.shop`.
@@ -85,6 +86,40 @@ Defined in `db/schema.sql`.
 | `comments`, `ratings`, `likes`, `flags` | User engagement and moderation |
 | `orders`, `order_items` | Mock checkout |
 | `system_logs`, `settings` | Audit trail and global settings (admin) |
+
+## Database dashboard (Phase 2)
+
+A separate read-only page at `/db`, with its own visual style, for Super Admin and Store Manager accounts. It reads the same PostgreSQL database as the shop, and nothing can be edited from it.
+
+It shows:
+
+- Product search: accent-insensitive keyword search, also matching brand, tag or id. Each result shows tags, stock, price, views and comment count. Filters for tag, category and stock level, and sorting.
+- Per-product comments: comment ID, date and time, commenter name, number of replies and status.
+- Search and click log: user, query string, clicked document, timestamp and result count.
+
+API routes (all under `/api/db`):
+
+| Route | Purpose |
+|---|---|
+| `GET /api/db/summary` | Totals for the dashboard header (products, stock, comments, searches) |
+| `GET /api/db/tags` | Tags with the number of products using each |
+| `GET /api/db/categories` | Categories with the number of products in each |
+| `GET /api/db/products` | Product search and listing with filters and sorting |
+| `GET /api/db/products/:id` | One product with its tags, stock, price and views |
+| `GET /api/db/products/:id/comments` | Comments on one product, with reply counts and status |
+| `GET /api/db/search-log` | Search and click log entries |
+
+Every route requires the `db.view` permission, held by `super_admin` and the `store_manager` role. The code is in `server/src/routes/dbdash.js` and `web/src/db/`.
+
+### Migration for existing databases
+
+The `store_manager` role, the `db.view` permission and the demo account `manager@shop.test` are added to existing databases by running the migration file:
+
+```bash
+psql "$DATABASE_URL" -f db/migrations/2026-11-11-store-manager.sql
+```
+
+The migration is additive and idempotent: it only inserts rows that are missing, so it is safe to run twice and does not touch existing data. No reseed is needed. Fresh databases get the same role, permission and account from `db/seed.js`.
 
 ## Deployment
 

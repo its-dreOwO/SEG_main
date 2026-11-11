@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import Home from './pages/Home.jsx';
@@ -13,10 +14,14 @@ import Profile from './pages/Profile.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 
+// The database dashboard is staff-only, so it loads on demand.
+const DbApp = lazy(() => import('./db/DbApp.jsx'));
+
 export default function App() {
   return (
     <Routes>
       <Route path="admin/*" element={<AdminApp />} />
+      <Route path="db/*" element={<Suspense fallback={<div style={{ minHeight: "100vh", background: "#111" }} aria-busy="true" />}><DbApp /></Suspense>} />
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="shop" element={<Catalog />} />
