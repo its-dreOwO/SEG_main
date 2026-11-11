@@ -71,7 +71,10 @@ input, select, textarea {
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--ink); }
 input[readonly] { background: var(--grey); color: var(--muted); }
 textarea { resize: vertical; }
-.field--pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field--pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.field--pair > div { min-width: 0; }
+/* Date inputs are too wide to sit two across in the filter panel, so that pair stacks. */
+.field--stack { grid-template-columns: minmax(0, 1fr); }
 .field--pair legend { grid-column: 1 / -1; }
 .field--pair label { font-weight: 500; font-size: 0.8rem; color: var(--muted); }
 .alert { background: #fff0f4; border: 1px solid var(--accent); color: #8a0a33; padding: 12px 14px; margin: 0 0 1rem; }

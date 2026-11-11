@@ -105,7 +105,7 @@ export default function Listing({ mode }) {
                 <input id="f-max" type="number" min="0" step="1" inputMode="decimal" placeholder={t('filters.max')} value={draft.maxPrice} onChange={set('maxPrice')} />
               </div>
             </fieldset>
-            <fieldset className="field field--pair">
+            <fieldset className="field field--pair field--stack">
               <legend>{t('filters.date')}</legend>
               <div>
                 <label htmlFor="f-from">{t('filters.from')}</label>
