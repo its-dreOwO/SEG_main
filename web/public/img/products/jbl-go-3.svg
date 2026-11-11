@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
  aria-label="JBL Go 3">
 <rect width="400" height="300" fill="#d9edde"/>
-<rect x="135" y="52" width="130" height="210" rx="24" fill="#2b2f3a"/>
-<circle cx="200" cy="96" r="14" fill="#5a6270"/>
-<circle cx="200" cy="178" r="42" fill="#5a6270"/>
-<circle cx="200" cy="178" r="22" fill="#f0c24b"/>
+<rect x="128" y="40" width="144" height="226" rx="22" fill="#2b2f3a"/>
+<rect x="140" y="52" width="120" height="202" rx="14" fill="#5a6270"/>
+<circle cx="200" cy="92" r="20" fill="#2b2f3a"/>
+<circle cx="200" cy="92" r="9" fill="#f0c24b"/>
+<circle cx="200" cy="178" r="52" fill="#2b2f3a"/>
+<circle cx="200" cy="178" r="40" fill="none" stroke="#5a6270" stroke-width="6"/>
+<circle cx="200" cy="178" r="18" fill="#f0c24b"/>
+<circle cx="200" cy="178" r="6" fill="#2b2f3a"/>
+<rect x="178" y="240" width="44" height="5" rx="2.5" fill="#2b2f3a"/>
 <text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">JBL</text>
 </svg>

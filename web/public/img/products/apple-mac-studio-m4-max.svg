@@ -1,10 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
  aria-label="Apple Mac Studio (M4 Max)">
 <rect width="400" height="300" fill="#f5ecd9"/>
-<rect x="150" y="46" width="100" height="214" rx="10" fill="#4a3f5c"/>
-<rect x="162" y="62" width="76" height="8" rx="4" fill="#5a6270"/>
-<rect x="162" y="80" width="76" height="8" rx="4" fill="#5a6270"/>
-<rect x="162" y="98" width="76" height="8" rx="4" fill="#5a6270"/>
-<circle cx="200" cy="226" r="6" fill="#8c7ae6"/>
+<rect x="132" y="36" width="136" height="222" rx="10" fill="#4a3f5c"/>
+<rect x="132" y="254" width="30" height="10" rx="3" fill="#5a6270"/>
+<rect x="238" y="254" width="30" height="10" rx="3" fill="#5a6270"/>
+<rect x="144" y="48" width="82" height="198" rx="6" fill="#5a6270"/>
+<circle cx="185" cy="98" r="30" fill="#4a3f5c"/>
+<circle cx="185" cy="98" r="24" fill="none" stroke="#8c7ae6" stroke-width="4"/>
+<circle cx="185" cy="98" r="7" fill="#8c7ae6"/>
+<line x1="185" y1="78" x2="185" y2="118" stroke="#5a6270" stroke-width="3" stroke-linecap="round"/>
+<line x1="165" y1="98" x2="205" y2="98" stroke="#5a6270" stroke-width="3" stroke-linecap="round"/>
+<circle cx="185" cy="180" r="30" fill="#4a3f5c"/>
+<circle cx="185" cy="180" r="24" fill="none" stroke="#8c7ae6" stroke-width="4"/>
+<circle cx="185" cy="180" r="7" fill="#8c7ae6"/>
+<line x1="185" y1="160" x2="185" y2="200" stroke="#5a6270" stroke-width="3" stroke-linecap="round"/>
+<line x1="165" y1="180" x2="205" y2="180" stroke="#5a6270" stroke-width="3" stroke-linecap="round"/>
+<rect x="236" y="54" width="22" height="6" rx="3" fill="#5a6270"/>
+<rect x="236" y="66" width="22" height="6" rx="3" fill="#5a6270"/>
+<circle cx="247" cy="96" r="6" fill="#8c7ae6"/>
+<rect x="240" y="116" width="14" height="4" rx="2" fill="#5a6270"/>
+<rect x="240" y="126" width="14" height="4" rx="2" fill="#5a6270"/>
 <text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Apple</text>
 </svg>

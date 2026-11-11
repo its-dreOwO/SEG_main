@@ -1,10 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
  aria-label="Google Pixel Watch 3">
 <rect width="400" height="300" fill="#ebf5dc"/>
-<rect x="172" y="30" width="56" height="60" rx="8" fill="#5a6270"/>
-<rect x="172" y="200" width="56" height="60" rx="8" fill="#5a6270"/>
-<rect x="158" y="84" width="84" height="112" rx="22" fill="#3d4450"/>
-<rect x="168" y="96" width="64" height="88" rx="16" fill="#e9f1fb"/>
-<rect x="246" y="130" width="6" height="24" rx="3" fill="#5a6270"/>
+<path d="M166 96 L172 30 H228 L234 96 Z" fill="#5a6270"/>
+<path d="M166 204 L172 262 H228 L234 204 Z" fill="#5a6270"/>
+<rect x="188" y="240" width="24" height="5" rx="2.5" fill="#3d4450"/>
+<rect x="146" y="84" width="108" height="132" rx="30" fill="#3d4450"/>
+<rect x="155" y="93" width="90" height="114" rx="22" fill="#1d2129"/>
+<circle cx="200" cy="150" r="34" fill="none" stroke="#3a414d" stroke-width="7"/>
+<path d="M200 116 A34 34 0 1 1 168 162" fill="none" stroke="#f0c24b" stroke-width="7" stroke-linecap="round"/>
+<line x1="200" y1="150" x2="200" y2="130" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+<line x1="200" y1="150" x2="214" y2="158" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+<circle cx="200" cy="150" r="3.5" fill="#f0c24b"/>
+<rect x="254" y="134" width="8" height="26" rx="4" fill="#5a6270"/>
 <text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Google</text>
 </svg>

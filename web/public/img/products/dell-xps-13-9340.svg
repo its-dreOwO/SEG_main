@@ -1,9 +1,51 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img"
  aria-label="Dell XPS 13 (9340)">
 <rect width="400" height="300" fill="#eae6fd"/>
-<rect x="108" y="52" width="184" height="130" rx="8" fill="#2b2f3a"/>
-<rect x="118" y="62" width="164" height="110" rx="3" fill="#e9f1fb"/>
-<rect x="80" y="182" width="240" height="14" rx="7" fill="#5a6270"/>
-<rect x="170" y="182" width="60" height="5" rx="2.5" fill="#e56b8a"/>
+<rect x="96" y="40" width="208" height="142" rx="10" fill="#2b2f3a"/>
+<clipPath id="s"><rect x="104" y="48" width="192" height="124" rx="4"/></clipPath>
+<g clip-path="url(#s)">
+<rect x="104" y="48" width="192" height="124" rx="0" fill="#e9f1fb"/>
+<circle cx="246.07999999999998" cy="85.19999999999999" r="16.12" fill="#e56b8a"/>
+<path d="M104 172 V129.84 Q146.24 97.6 192.32 132.32 T296 117.44000000000001 V172 Z" fill="#9db9d6"/>
+<path d="M104 172 V152.16 Q161.6 122.39999999999999 223.04 149.68 T296 142.24 V172 Z" fill="#5f7ea3"/>
+</g>
+<circle cx="200" cy="44" r="1.6" fill="#5a6270"/>
+<path d="M70 232 L96 186 H304 L330 232 Z" fill="#5a6270"/>
+<rect x="64" y="230" width="272" height="10" rx="5" fill="#2b2f3a"/>
+<rect x="172" y="230" width="56" height="4" rx="2" fill="#5a6270"/>
+<rect x="103.5" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="121.31818181818181" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="139.13636363636363" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="156.95454545454544" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="174.77272727272725" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="192.59090909090907" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="210.4090909090909" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="228.22727272727272" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="246.04545454545453" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="263.8636363636364" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="281.68181818181813" y="191" width="14.818181818181817" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="99.5" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="118.04545454545455" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="136.5909090909091" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="155.13636363636363" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="173.6818181818182" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="192.22727272727275" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="210.77272727272728" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="229.3181818181818" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="247.86363636363637" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="266.40909090909093" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="284.9545454545455" y="199" width="15.545454545454547" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="95.5" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="114.77272727272728" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="134.04545454545456" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="153.3181818181818" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="172.5909090909091" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="191.86363636363637" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="211.13636363636363" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="230.4090909090909" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="249.6818181818182" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="268.9545454545455" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="288.22727272727275" y="207" width="16.272727272727273" height="5" rx="1.5" fill="#6b7383"/>
+<rect x="176" y="216" width="48" height="9" rx="2" fill="#6b7383"/>
 <text x="200" y="284" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#3a3f4b">Dell</text>
 </svg>
