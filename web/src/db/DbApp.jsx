@@ -8,6 +8,7 @@ import { DbCtx } from './ui.jsx';
 import Products from './Products.jsx';
 import ProductDetail from './ProductDetail.jsx';
 import SearchLog from './SearchLog.jsx';
+import SearchQuality from './SearchQuality.jsx';
 import './db.css';
 
 const num = (n) => (n === null || n === undefined ? '-' : Number(n).toLocaleString('en-US'));
@@ -82,6 +83,7 @@ function Shell({ user }) {
         <nav className="dbx-tabs" aria-label={t('d.nav')}>
           <NavLink to="/db" end className={({ isActive }) => (isActive ? 'is-on' : '')}>{t('d.tabProducts')}</NavLink>
           <NavLink to="/db/search-log" className={({ isActive }) => (isActive ? 'is-on' : '')}>{t('d.tabLog')}</NavLink>
+          <NavLink to="/db/search-quality" className={({ isActive }) => (isActive ? 'is-on' : '')}>{t('d.tabQuality')}</NavLink>
           <span className="dbx-ro">{t('d.readOnly')}</span>
         </nav>
       </header>
@@ -90,6 +92,7 @@ function Shell({ user }) {
           <Route index element={<Products />} />
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="search-log" element={<SearchLog />} />
+          <Route path="search-quality" element={<SearchQuality />} />
           <Route path="*" element={<Navigate to="/db" replace />} />
         </Routes>
       </main>

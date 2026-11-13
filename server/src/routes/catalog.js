@@ -1,6 +1,7 @@
 import express from 'express';
 import { query } from '../db.js';
 import { optionalAuth, wrap } from '../auth.js';
+import { searchClause } from '../search/engine.js';
 
 const SORTS = {
   newest: 'd.created_at DESC, d.id DESC',
@@ -8,6 +9,7 @@ const SORTS = {
   price_desc: 'd.price DESC NULLS LAST, d.id DESC',
   top: 'sold DESC, d.created_at DESC, d.id DESC',
   views: 'd.views_count DESC, d.created_at DESC, d.id DESC',
+  relevance: null, // BM25 score; only meaningful with a text query, falls back to newest without one
 };
 
 export const escapeLike = (s) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
@@ -65,20 +67,17 @@ export function createCatalogRouter() {
     const limit = q.limit === undefined ? 12 : Number(q.limit);
     if (!Number.isInteger(page) || page < 1) return bad(res, 'Invalid page');
     if (!Number.isInteger(limit) || limit < 1 || limit > 50) return bad(res, 'Invalid limit');
-    const sort = q.sort ?? 'newest';
-    if (!SORTS[sort]) return bad(res, 'Invalid sort');
+    const term = (q.q ?? '').trim();
+    const sort = q.sort ?? (term ? 'relevance' : 'newest');
+    if (!(sort in SORTS)) return bad(res, 'Invalid sort');
 
     const where = ["d.status = 'published'"];
     const params = [];
     const p = (v) => { params.push(v); return `$${params.length}`; };
 
-    const term = (q.q ?? '').trim();
-    if (term) {
-      const like = p(`%${escapeLike(term)}%`);
-      where.push(`(d.document_search LIKE f_unaccent(lower(${like})) ESCAPE '\\'
-        OR EXISTS (SELECT 1 FROM document_tags dt JOIN tags t ON t.id = dt.tag_id
-                    WHERE dt.document_id = d.id AND f_unaccent(lower(t.name)) LIKE f_unaccent(lower(${like})) ESCAPE '\\'))`);
-    }
+    // Text query: BM25 over the inverted index (server/src/search/engine.js).
+    const match = term ? await searchClause(term, 'bm25', p) : null;
+    if (match) where.push(...match.where);
     if (q.category) where.push(`c.slug = ${p(q.category)}`);
     if (q.tag) {
       where.push(`EXISTS (SELECT 1 FROM document_tags dt JOIN tags t ON t.id = dt.tag_id
@@ -103,24 +102,30 @@ export function createCatalogRouter() {
       where.push(`d.price ${op} ${p(v)}`);
     }
 
-    const from = 'FROM documents d LEFT JOIN categories c ON c.id = d.category_id WHERE ' + where.join(' AND ');
-    const total = (await query(`SELECT count(*)::int AS n ${from}`, params)).rows[0].n;
+    const cte = match?.cte ?? '';
+    const from = `FROM documents d ${match?.join ?? ''} LEFT JOIN categories c ON c.id = d.category_id WHERE ${where.join(' AND ')}`;
+    const order = sort === 'relevance' ? (match?.order ?? SORTS.newest) : SORTS[sort];
+    const total = (await query(`${cte}SELECT count(*)::int AS n ${from}`, params)).rows[0].n;
     const limitP = `$${params.length + 1}`;
     const offsetP = `$${params.length + 2}`;
+    const offset = (page - 1) * limit;
     const { rows } = await query(
-      `SELECT ${LIST_SELECT} ${from} ORDER BY ${SORTS[sort]} LIMIT ${limitP} OFFSET ${offsetP}`,
-      [...params, limit, (page - 1) * limit],
+      `${cte}SELECT ${LIST_SELECT}, ${match?.score ?? 'NULL::float8'} AS score ${from} ORDER BY ${order} LIMIT ${limitP} OFFSET ${offsetP}`,
+      [...params, limit, offset],
     );
-    const items = rows.map(({ sold, ...rest }) => rest);
+    const items = rows.map(({ sold, score, ...rest }) => (score == null ? rest : { ...rest, score: Math.round(Number(score) * 1000) / 1000 }));
 
+    // Every text search is logged with the ranked ids shown, so clicks can be tied to a rank for evaluation.
+    let searchId;
     if (term) {
-      await query('INSERT INTO search_click_log (user_id, query_string, result_count) VALUES ($1, $2, $3)', [
-        req.user?.id ?? null,
-        term.slice(0, 200),
-        total,
-      ]);
+      const logged = await query(
+        `INSERT INTO search_click_log (user_id, query_string, result_count, result_ids, result_offset, sort)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [req.user?.id ?? null, term.slice(0, 200), total, items.map((i) => i.id), offset, sort],
+      );
+      searchId = logged.rows[0].id;
     }
-    res.json({ items, total, page, pages: Math.ceil(total / limit) });
+    res.json({ items, total, page, pages: Math.ceil(total / limit), ...(searchId ? { searchId } : {}) });
   }));
 
   router.get('/documents/:slug', optionalAuth, wrap(async (req, res) => {

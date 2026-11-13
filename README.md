@@ -81,7 +81,8 @@ Defined in `db/schema.sql`.
 | `categories` | Product categories (EN and VI names) |
 | `documents` | The Phase 2 documents table: id, title, content, summary, category_id, author, created_at, views_count, plus price, stock, brand, image, status (draft/published), SEO fields, and a generated, accent-folded `document_search` column. `kind` is `product` or `article` |
 | `tags`, `document_tags` | Tags and the many-to-many link (with who added the tag) |
-| `search_click_log` | Phase 2 log: user_id, query_string, clicked_doc_id, timestamp (plus result_count) |
+| `search_click_log` | Phase 2 log: user_id, query_string, clicked_doc_id, timestamp, plus result_count. A search row also stores `result_ids` (ids shown, in rank order), `result_offset` and `sort`. A click row links to its search with `search_id` and stores `clicked_rank` |
+| `search_postings`, `search_doc_stats`, `search_index_state` | The search engine's inverted index (term, doc_id, tf), document lengths, and a dirty flag set by triggers |
 | `page_views` | One row per view, feeding the analytics dashboard |
 | `comments`, `ratings`, `likes`, `flags` | User engagement and moderation |
 | `orders`, `order_items` | Mock checkout |
@@ -95,7 +96,8 @@ It shows:
 
 - Product search: accent-insensitive keyword search, also matching brand, tag or id. Each result shows tags, stock, price, views and comment count. Filters for tag, category and stock level, and sorting.
 - Per-product comments: comment ID, date and time, commenter name, number of replies and status.
-- Search and click log: user, query string, clicked document, timestamp and result count.
+- Search and click log: user, query string, clicked document, timestamp, result count and clicked rank.
+- Search quality: inverted index stats, offline and online evaluation from the click log, and a query explainer showing tokens, term weights and the top results from each ranker.
 
 API routes (all under `/api/db`):
 
@@ -108,6 +110,8 @@ API routes (all under `/api/db`):
 | `GET /api/db/products/:id` | One product with its tags, stock, price and views |
 | `GET /api/db/products/:id/comments` | Comments on one product, with reply counts and status |
 | `GET /api/db/search-log` | Search and click log entries |
+| `GET /api/db/search-eval?k=10` | Index stats plus offline (P@k, R@k, MRR, MAP@k, nDCG@k per ranker) and online (CTR, MRR, clicked rank) evaluation |
+| `GET /api/db/search-explain?q=` | Tokens, index terms with IDF, and the top 10 results from BM25, TF-IDF and the baseline |
 
 Every route requires the `db.view` permission, held by `super_admin` and the `store_manager` role. The code is in `server/src/routes/dbdash.js` and `web/src/db/`.
 
@@ -120,6 +124,27 @@ psql "$DATABASE_URL" -f db/migrations/2026-11-11-store-manager.sql
 ```
 
 The migration is additive and idempotent: it only inserts rows that are missing, so it is safe to run twice and does not touch existing data. No reseed is needed. Fresh databases get the same role, permission and account from `db/seed.js`.
+
+## Search engine (Phase 2)
+
+The code is in `server/src/search/`.
+
+- **Tokenisation** (`tokenize.js`). The tokeniser strips HTML, lowercases, removes accents (Vietnamese included, `đ` becomes `d`) and splits on anything that is not a letter or digit. It then drops English and Vietnamese stopwords and stems English plurals (`headphones` becomes `headphone`). Documents and queries go through the same tokeniser.
+- **Inverted index** (`engine.js`). `search_postings(term, doc_id, tf)` maps each term to the published documents that contain it. Term frequency is weighted by field: title ×3, brand and tags ×2, category, summary and content ×1. `search_doc_stats` stores each document's length. Triggers on `documents`, `document_tags`, `tags` and `categories` mark the index dirty when indexed text changes, and the next search rebuilds it first. View counts and stock changes don't mark it dirty.
+- **Ranking**. Shop search uses BM25 (k1 = 1.2, b = 0.75). TF-IDF (log-scaled tf × idf, normalised by length) and the Phase 1 substring baseline are kept for comparison. Queries match any term (OR), and the score orders the results. A query word missing from the vocabulary is expanded to up to 5 terms it is a prefix of. `GET /api/documents?q=` sorts by relevance by default (`sort=relevance`), adds a `score` to each item and returns a `searchId`.
+- **Evaluation** (`evaluate.js`). Offline: each distinct query in the click log is a test query, and the documents clicked for it are relevant, graded by click count. All three rankers are scored with P@5, P@k, R@k, MRR, MAP@k and nDCG@k. Online: click-through rate, MRR of the first click, mean clicked rank and clicks per rank. These come from searches whose clicks are linked by `searchId`. Clicks lean toward what the live ranker showed, which favours BM25.
+
+Run the report from the command line:
+
+```bash
+DATABASE_URL=... node db/evaluate-search.js --queries      # --k=10, --min-clicks=1, --json
+```
+
+Existing databases get the new tables, columns and triggers from an additive migration that is safe to run twice:
+
+```bash
+psql "$DATABASE_URL" -f db/migrations/2026-11-13-search-engine.sql
+```
 
 ## Deployment
 

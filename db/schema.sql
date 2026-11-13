@@ -1,7 +1,7 @@
 -- Tech store schema. Applying this file drops and recreates every table.
 CREATE EXTENSION IF NOT EXISTS unaccent;
 
-DROP TABLE IF EXISTS page_views, settings, system_logs, order_items, orders, flags, likes, ratings,
+DROP TABLE IF EXISTS search_postings, search_doc_stats, search_index_state, page_views, settings, system_logs, order_items, orders, flags, likes, ratings,
   comments, search_click_log, document_tags, tags, documents, categories, users,
   role_permissions, permissions, roles CASCADE;
 
@@ -102,9 +102,18 @@ CREATE TABLE search_click_log (
   query_string text NOT NULL DEFAULT '',
   clicked_doc_id int REFERENCES documents(id) ON DELETE SET NULL,
   result_count int,
-  "timestamp" timestamptz NOT NULL DEFAULT now()
+  "timestamp" timestamptz NOT NULL DEFAULT now(),
+  -- Phase 2 search engine. A search row has result_count, the ids shown on that page (result_ids, in rank order),
+  -- the offset of that page and the sort used. A click row links back to its search (search_id) and stores the
+  -- 1-based rank the clicked document had in that result list.
+  result_ids int[],
+  result_offset int,
+  sort text,
+  search_id int REFERENCES search_click_log(id) ON DELETE SET NULL,
+  clicked_rank int
 );
 CREATE INDEX search_click_log_ts_idx ON search_click_log ("timestamp");
+CREATE INDEX search_click_log_search_idx ON search_click_log (search_id);
 
 CREATE TABLE page_views (
   id serial PRIMARY KEY,
@@ -186,3 +195,45 @@ CREATE TABLE settings (
   key text PRIMARY KEY,
   value text NOT NULL
 );
+
+-- Phase 2 search engine: an inverted index over published documents (see server/src/search/).
+-- search_postings is the inverted index: for each term, the documents containing it and the (field-weighted)
+-- term frequency. search_doc_stats holds each document's length in tokens, for BM25 length normalisation.
+-- No foreign keys on purpose: the index is rebuilt as a whole, and FKs here could deadlock with a document delete.
+CREATE TABLE search_postings (
+  term text COLLATE "C" NOT NULL,
+  doc_id int NOT NULL,
+  tf int NOT NULL CHECK (tf > 0),
+  PRIMARY KEY (term, doc_id)
+);
+CREATE INDEX search_postings_doc_idx ON search_postings (doc_id);
+CREATE TABLE search_doc_stats (
+  doc_id int PRIMARY KEY,
+  length int NOT NULL
+);
+-- One row. dirty = true means the indexed text changed and the index must be rebuilt before the next search.
+CREATE TABLE search_index_state (
+  id int PRIMARY KEY CHECK (id = 1),
+  dirty boolean NOT NULL DEFAULT true,
+  built_at timestamptz,
+  doc_count int NOT NULL DEFAULT 0,
+  term_count int NOT NULL DEFAULT 0
+);
+INSERT INTO search_index_state (id, dirty) VALUES (1, true);
+
+CREATE OR REPLACE FUNCTION search_index_mark_dirty() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  UPDATE search_index_state SET dirty = true WHERE id = 1 AND NOT dirty;
+  RETURN NULL;
+END $$;
+-- Only columns that feed the index mark it dirty, so view counters and stock changes do not trigger rebuilds.
+CREATE TRIGGER documents_search_dirty AFTER INSERT OR DELETE OR TRUNCATE ON documents
+  FOR EACH STATEMENT EXECUTE FUNCTION search_index_mark_dirty();
+CREATE TRIGGER documents_search_dirty_upd AFTER UPDATE OF title, title_vi, summary, summary_vi, content, content_vi,
+  brand, status, category_id ON documents FOR EACH STATEMENT EXECUTE FUNCTION search_index_mark_dirty();
+CREATE TRIGGER document_tags_search_dirty AFTER INSERT OR DELETE OR UPDATE OR TRUNCATE ON document_tags
+  FOR EACH STATEMENT EXECUTE FUNCTION search_index_mark_dirty();
+CREATE TRIGGER tags_search_dirty AFTER UPDATE OF name OR DELETE ON tags
+  FOR EACH STATEMENT EXECUTE FUNCTION search_index_mark_dirty();
+CREATE TRIGGER categories_search_dirty AFTER UPDATE OF name, name_vi OR DELETE ON categories
+  FOR EACH STATEMENT EXECUTE FUNCTION search_index_mark_dirty();

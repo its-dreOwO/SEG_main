@@ -21,15 +21,31 @@ export function createEngagementRouter() {
   const router = express.Router();
 
   router.post('/search/click', optionalAuth, wrap(async (req, res) => {
-    const { query: text, docId } = req.body ?? {};
+    const { query: text, docId, searchId } = req.body ?? {};
     const id = toId(docId);
     if (id === null) return res.status(400).json({ error: 'docId is required' });
     if (!(await publishedDoc(id))) return res.status(404).json({ error: 'Not found' });
-    const qs = typeof text === 'string' ? stripHtml(text).slice(0, 200) : '';
-    await query('INSERT INTO search_click_log (user_id, query_string, clicked_doc_id) VALUES ($1, $2, $3)', [
-      req.user?.id ?? null, qs, id,
-    ]);
-    res.json({ ok: true });
+    let qs = typeof text === 'string' ? stripHtml(text).slice(0, 200) : '';
+    // With the searchId returned by GET /documents, link the click to its search and record the rank the
+    // document was shown at. The rank comes from the logged result list, never from the client.
+    let link = null;
+    let rank = null;
+    const sid = searchId === undefined || searchId === null ? null : toId(searchId);
+    if (sid !== null) {
+      const { rows } = await query(
+        `SELECT id, query_string, result_offset + array_position(result_ids, $2) AS rank
+           FROM search_click_log WHERE id = $1 AND result_ids IS NOT NULL`, [sid, id]);
+      if (rows[0]) {
+        link = rows[0].id;
+        rank = rows[0].rank;
+        qs = rows[0].query_string;
+      }
+    }
+    await query(
+      'INSERT INTO search_click_log (user_id, query_string, clicked_doc_id, search_id, clicked_rank) VALUES ($1, $2, $3, $4, $5)',
+      [req.user?.id ?? null, qs, id, link, rank],
+    );
+    res.json({ ok: true, rank });
   }));
 
   router.post('/documents/:id/comments', requireAuth, wrap(async (req, res) => {

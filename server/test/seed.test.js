@@ -94,7 +94,11 @@ test('the seeded database holds the catalogue and demo engagement', async () => 
   assert.equal(await count('SELECT count(*) AS n FROM ratings'), 300);
   assert.equal(await count('SELECT count(*) AS n FROM flags'), 5);
   assert.equal(await count('SELECT count(*) AS n FROM orders'), 15);
-  assert.equal(await count('SELECT count(*) AS n FROM search_click_log'), 250);
+  assert.equal(await count('SELECT count(*) AS n FROM search_click_log WHERE result_count IS NOT NULL'), 250);
+  const clicks = await count('SELECT count(*) AS n FROM search_click_log WHERE clicked_doc_id IS NOT NULL');
+  assert.ok(clicks > 100 && clicks < 225, `clicks ${clicks}`);
+  assert.equal(await count('SELECT count(*) AS n FROM search_click_log WHERE clicked_doc_id IS NOT NULL AND search_id IS NULL'), 0);
+  assert.ok((await count('SELECT count(*) AS n FROM search_click_log WHERE clicked_rank = 1')) > 0);
   assert.equal(await count('SELECT count(*) AS n FROM page_views'), 500);
   assert.equal(await count('SELECT count(*) AS n FROM roles'), roles.length);
 });

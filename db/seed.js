@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool, query } from '../server/src/db.js';
 import { hashPassword } from '../server/src/password.js';
+import { rankIds } from '../server/src/search/engine.js';
 import { roles, permissions, rolePermissions, users, categories, settings } from './data/users.js';
 import { products } from './data/products.js';
 import { articles } from './data/articles.js';
@@ -220,24 +221,40 @@ export async function seedContent() {
     }
   }
 
-  // Search log: 250 queries over 30 days. About 10% are zero-result queries (result_count 0, no click);
-  // the rest have a positive result_count, and some of those are clicked.
+  // Search log: 250 searches over 30 days, ranked by the real BM25 engine (the index is built on first use).
+  // About 10% are zero-result style queries with no click. A search row stores the ids shown on page 1; about
+  // 75% of the others get a click on one of the query's target products, logged as a separate row linked by
+  // search_id, with the rank the product had in the full BM25 ranking (null if BM25 did not retrieve it).
   const hitQueries = QUERY_TARGETS.filter(([, targets]) => targets.length > 0);
   const missQueries = [
     ...QUERY_TARGETS.filter(([, targets]) => targets.length === 0).map(([text]) => text),
     ...EXTRA_NO_MATCH_QUERIES,
   ];
+  const rankings = new Map();
+  const ranking = async (text) => {
+    if (!rankings.has(text)) rankings.set(text, await rankIds(text, 'bm25', { limit: 1000 }));
+    return rankings.get(text);
+  };
   for (let i = 0; i < 250; i++) {
     const miss = rng() < 0.1;
     const [text, targets] = miss ? [pick(rng, missQueries), []] : pick(rng, hitQueries);
+    const ranked = await ranking(text);
     const clicked = targets.length && rng() < 0.75 ? docId.get(pick(rng, targets)) : null;
-    const resultCount = miss ? 0 : 1 + Math.floor(rng() * 40);
     const userId = rng() < 0.4 ? null : pick(rng, customers).id;
-    await query(
-      `INSERT INTO search_click_log (user_id, query_string, clicked_doc_id, result_count, "timestamp")
-       VALUES ($1, $2, $3, $4, $5)`,
-      [userId, text, clicked, resultCount, recentTs(rng)],
+    const ts = recentTs(rng);
+    const { rows } = await query(
+      `INSERT INTO search_click_log (user_id, query_string, result_count, result_ids, result_offset, sort, "timestamp")
+       VALUES ($1, $2, $3, $4, 0, 'relevance', $5) RETURNING id`,
+      [userId, text, ranked.length, ranked.slice(0, 12), ts],
     );
+    if (clicked) {
+      const pos = ranked.indexOf(clicked);
+      await query(
+        `INSERT INTO search_click_log (user_id, query_string, clicked_doc_id, search_id, clicked_rank, "timestamp")
+         VALUES ($1, $2, $3, $4, $5, $6::timestamptz + interval '8 seconds')`,
+        [userId, text, clicked, rows[0].id, pos === -1 ? null : pos + 1, ts],
+      );
+    }
   }
 
   // Page views: 500 over 30 days, weighted toward a few popular products. Then sync views_count.

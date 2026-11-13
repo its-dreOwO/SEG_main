@@ -8,6 +8,8 @@ import { CardGridSkeleton, Notice, ProductGrid } from './Skeleton.jsx';
 
 const FILTER_KEYS = ['category', 'tag', 'from', 'to', 'minPrice', 'maxPrice'];
 const SORTS = ['newest', 'top', 'views', 'price_asc', 'price_desc'];
+// Search results default to relevance (BM25 on the server); the plain catalogue defaults to newest.
+const SEARCH_SORTS = ['relevance', ...SORTS];
 const PER_PAGE = 12;
 
 // Shared listing for the catalog and for search results: filters live in the URL.
@@ -16,7 +18,9 @@ export default function Listing({ mode }) {
   const [params, setParams] = useSearchParams();
   const isSearch = mode === 'search';
   const q = isSearch ? (params.get('q') || '').trim() : '';
-  const sort = SORTS.includes(params.get('sort')) ? params.get('sort') : 'newest';
+  const sorts = isSearch ? SEARCH_SORTS : SORTS;
+  const defaultSort = sorts[0];
+  const sort = sorts.includes(params.get('sort')) ? params.get('sort') : defaultSort;
   const page = Math.max(1, Number(params.get('page')) || 1);
   const filters = Object.fromEntries(FILTER_KEYS.map((k) => [k, params.get(k) || '']));
 
@@ -26,7 +30,7 @@ export default function Listing({ mode }) {
 
   const tags = useApi('/tags');
   const canFetch = !isSearch || q;
-  const path = canFetch ? `/documents${qs({ kind: 'product', q, ...filters, sort: sort === 'newest' ? '' : sort, page: page > 1 ? page : '', limit: PER_PAGE })}` : null;
+  const path = canFetch ? `/documents${qs({ kind: 'product', q, ...filters, sort: sort === defaultSort ? '' : sort, page: page > 1 ? page : '', limit: PER_PAGE })}` : null;
   const { data, error, loading, reload } = useApi(path);
   const desktop = useMedia('(min-width: 900px)');
 
@@ -51,7 +55,9 @@ export default function Listing({ mode }) {
   const hasFilters = FILTER_KEYS.some((k) => filters[k]);
   const setPage = (n) => { update({ page: n > 1 ? n : '' }); window.scrollTo({ top: 0 }); };
 
-  const onOpen = useMemo(() => (isSearch ? (p) => { api('/search/click', { method: 'POST', body: { query: q, docId: p.id } }).catch(() => {}); } : undefined), [isSearch, q]);
+  // searchId ties the click to the logged result list, so the server can record the rank that was clicked.
+  const searchId = data?.searchId;
+  const onOpen = useMemo(() => (isSearch ? (p) => { api('/search/click', { method: 'POST', body: { query: q, docId: p.id, searchId } }).catch(() => {}); } : undefined), [isSearch, q, searchId]);
 
   const set = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }));
 
@@ -67,8 +73,8 @@ export default function Listing({ mode }) {
         </div>
         <div className="sortbox">
           <label htmlFor="sort">{t('filters.sort')}</label>
-          <select id="sort" value={sort} onChange={(e) => update({ sort: e.target.value === 'newest' ? '' : e.target.value })}>
-            {SORTS.map((s) => <option key={s} value={s}>{t(`sort.${s}`)}</option>)}
+          <select id="sort" value={sort} onChange={(e) => update({ sort: e.target.value === defaultSort ? '' : e.target.value })}>
+            {sorts.map((s) => <option key={s} value={s}>{t(`sort.${s}`)}</option>)}
           </select>
         </div>
       </div>

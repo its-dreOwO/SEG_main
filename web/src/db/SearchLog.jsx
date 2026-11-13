@@ -36,9 +36,10 @@ export default function SearchLog() {
                   <th scope="col">{t('d.colQuery')}</th>
                   <th scope="col" className="num">{t('d.colResults')}</th>
                   <th scope="col">{t('d.colClicked')}</th>
+                  <th scope="col" className="num">{t('d.colRank')}</th>
                 </tr>
               </thead>
-              {!data ? <Skeleton cols={6} /> : (
+              {!data ? <Skeleton cols={7} /> : (
                 <tbody key={`${f.q}-${f.clicked}-${f.page}`}>
                   {data.items.map((r) => (
                     <tr key={r.id}>
@@ -51,6 +52,9 @@ export default function SearchLog() {
                         {r.clicked_doc_id == null ? <span className="dbx-dim">{t('d.noClick')}</span> : (
                           <Link className="dbx-doc" to={`/db/product/${r.clicked_doc_id}`}><span className="dbx-dim">#{r.clicked_doc_id}</span> {r.clicked_title || ''}</Link>
                         )}
+                      </td>
+                      <td className="num" title={r.search_id ? t('d.ofSearch', { id: r.search_id }) : undefined}>
+                        {r.clicked_rank != null ? `#${r.clicked_rank}` : <span className="dbx-dim">-</span>}
                       </td>
                     </tr>
                   ))}
